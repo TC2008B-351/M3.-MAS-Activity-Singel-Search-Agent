@@ -485,16 +485,57 @@ class ClosestDotSearchAgent(SearchAgent):
         gameState.
         """
         # Here are some useful elements of the startState
-        startPosition = gameState.getPacmanPosition()
+        """startPosition = gameState.getPacmanPosition()
         food = gameState.getFood()
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
         # Use A* search to find the path to the closest dot
         actions = search.aStarSearch(problem, foodHeuristic)
-        return actions
+        return actions"""
+
+        startPosition = gameState.getPacmanPosition()
+        food = gameState.getFood()
+        walls = gameState.getWalls()
+
+        # Initialize a queue for BFS
+        queue = util.Queue()
+        queue.push((startPosition, []))  
+
+        visited = set()  
+        while not queue.isEmpty():
+            position, actions = queue.pop()
+
+            if position in visited:
+                continue
+
+            visited.add(position)
+
+            if food[position[0]][position[1]]:
+                return actions  
+            
+            # Generate successor positions
+            successors = []
+            for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+                x, y = position
+                dx, dy = Actions.directionToVector(action)
+                next_x, next_y = int(x + dx), int(y + dy)
+                if not walls[next_x][next_y]:
+                    successors.append(((next_x, next_y), action))
+
+            # Add unvisited successor positions to the queue
+            for successor, action in successors:
+                if successor not in visited:
+                    queue.push((successor, actions + [action]))
+
+        return []
 
 class AnyFoodSearchProblem(PositionSearchProblem):
+    def isGoalState(self, state):
+        x, y = state
+        # Check if the current state contains food
+        return self.food[x][y] or len(self.food.asList()) == 0
+    
     """
     A search problem for finding a path to any food.
 
