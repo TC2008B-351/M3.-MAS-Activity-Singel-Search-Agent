@@ -72,17 +72,6 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def check_key_in_dict(dictionary, key):
-    if key in dictionary:
-        return True
-    return False
-
-def search_value_in_dict(dictionary, target_value):
-    for _, value in dictionary.items():
-        if value == target_value:
-            return True
-    return False
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
