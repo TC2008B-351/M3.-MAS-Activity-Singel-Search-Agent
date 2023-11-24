@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -152,8 +152,62 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
+        # minimum value function
+        def minValue(state, depth, agentIndex):
+            agentCount = gameState.getNumAgents()
+            legalActions = state.getLegalActions(agentIndex)
+            minimumValue = None
+            value_list =[]
+
+            if not legalActions:
+                return self.evaluationFunction(state)
+
+            # pacman is the last to move after all ghost movement
+            if agentIndex == agentCount - 1:
+                for action in legalActions:
+                    value =  maxValue(state.generateSuccessor(agentIndex, action), depth, agentIndex)
+                    value_list.append(value)
+            else:
+                value_list =[]
+                for action in legalActions:
+                    value =  minValue(state.generateSuccessor(agentIndex, action), depth, agentIndex + 1)
+                    value_list.append(value)
+
+            minimumValue = min(value_list)
+
+            return minimumValue
+
+        # maximum value function
+        def maxValue(state, depth, agentIndex):
+            agentIndex = 0
+            legalActions = state.getLegalActions(agentIndex)
+            maximumValue = None
+            value_list =[]
+
+            # if no legal actions or
+            # depth reached(prevent maximum depth exceeded in recursion)
+            if not legalActions  or depth == self.depth:
+                return self.evaluationFunction(state)
+
+            for action in legalActions:
+                value =  minValue(state.generateSuccessor(agentIndex, action), depth + 1, agentIndex + 1)
+                value_list.append(value)
+
+            return max(value_list)
+
+        # maximizing the best possible moves for the rootnode(pacman)
+        # pacman is agent index 0
+        actions = gameState.getLegalActions(0)
+        #find all actions and the corresponding value and then return action
+        #corresponding to the maximum value
+        allActions = {}
+        for action in actions:
+            allActions[action] = minValue(gameState.generateSuccessor(0, action), 1, 1)
+
+        return max(allActions, key=allActions.get)
         util.raiseNotDefined()
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
