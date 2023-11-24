@@ -69,12 +69,30 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
-        newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        # Scores at current and successor states
+        currentScore = currentGameState.getScore()
+        successorScore = successorGameState.getScore()
+        # Food and capsules lists of positions
+        currentFood = currentGameState.getFood().asList() + currentGameState.getCapsules()
 
-        "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # To stay still makes pacman lose 1 point
+        if action == 'Stop':
+            # It has to be a relative high negative value so pacman doesn't 
+            # choose to stay still over looking for food
+            return -100
+        
+        # If pacman score is higher at successor state, means he ate food,
+        # a capsule or a ghost
+        if successorScore > currentScore:
+            return 10
+        
+        # If pacman can't eat food, he gets points for getting less negative
+        # points for being closer to food
+        closeFood = []
+        for foodPos in currentFood:
+          closeFood.append(-1*util.manhattanDistance(foodPos,newPos))
+        # Return the max value meaning the closest food at the new position
+        return max(closeFood)
 
 def scoreEvaluationFunction(currentGameState):
     """
